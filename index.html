@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HACKED!!</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: "Comic Sans MS", Impact, fantasy;
+    background: black;
+    color: lime;
+    overflow-x: hidden;
+    text-align: center;
+    animation: flash 0.15s infinite;
+  }
+
+  @keyframes flash {
+    0% { background: black; }
+    33% { background: purple; }
+    66% { background: red; }
+    100% { background: black; }
+  }
+
+  h1 {
+    font-size: 60px;
+    color: red;
+    text-shadow: 5px 5px 0px yellow;
+    margin-top: 20px;
+    animation: shake 0.1s infinite;
+  }
+
+  @keyframes shake {
+    0% { transform: translate(0px, 0px); }
+    25% { transform: translate(2px, -3px); }
+    50% { transform: translate(-3px, 2px); }
+    75% { transform: translate(3px, 3px); }
+    100% { transform: translate(0px, 0px); }
+  }
+
+  #terminal {
+    margin: 20px auto;
+    width: 90%;
+    height: 250px;
+    background: black;
+    border: 3px solid lime;
+    padding: 10px;
+    font-family: "Lucida Console", monospace;
+    font-size: 16px;
+    text-align: left;
+    overflow-y: auto;
+    color: lime;
+  }
+
+  #ip {
+    font-size: 40px;
+    color: cyan;
+    margin-top: 20px;
+    text-shadow: 2px 2px 0px blue;
+  }
+
+  #map {
+    width: 90%;
+    height: 350px;
+    border: 5px dashed lime;
+    margin: 25px auto;
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- VERY LOUD SOUND -->
+<audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"></audio>
+
+<h1>⚠️ YOU HAVE BEEN HACKED !!! ⚠️</h1>
+
+<div id="ip">Fetching IP...</div>
+
+<div id="terminal"></div>
+
+<div id="map"></div>
+
+<script>
+// PLAY LOUD ALARM
+const snd = document.getElementById("alertSound");
+snd.volume = 1.0;
+snd.play().catch(()=>{}); // autoplay fix
+
+// FAKE HACKING TERMINAL
+const term = document.getElementById("terminal");
+function hackLine(text) {
+  term.innerHTML += "> " + text + "<br>";
+  term.scrollTop = term.scrollHeight;
+}
+
+// Generate random fake hacking text
+function randomText() {
+  const stuff = [
+    "Bypassing firewall...",
+    "Establishing backdoor...",
+    "Decrypting IP packets...",
+    "Injecting JavaScript payload...",
+    "Accessing router admin panel...",
+    "Bruteforcing password (1234)...",
+    "Downloading browser history...",
+    "Tracking GPS location...",
+    "Running nmap scan...",
+    "Stealing cookies...",
+    "Activating keylogger...",
+    "Uploading data to dark web...",
+    "Enabling webcam...",
+    "Injecting trojan.exe...",
+    "Mining crypto with your GPU..."
+  ];
+  return stuff[Math.floor(Math.random()*stuff.length)];
+}
+
+// Loop printing fake hacks
+setInterval(() => {
+  hackLine(randomText());
+}, 400);
+
+// GET IP + MAP
+async function loadIP() {
+  try {
+    const res = await fetch("https://ipwho.is/");
+    const data = await res.json();
+
+    const ip = data.ip;
+    const lat = data.latitude;
+    const lon = data.longitude;
+
+    document.getElementById("ip").textContent = "YOUR IP: " + ip;
+
+    hackLine("IP detected: " + ip);
+    hackLine("Location found: " + data.city + ", " + data.country);
+
+    document.getElementById("map").innerHTML = `
+      <iframe
+        width="100%"
+        height="100%"
+        style="border:0"
+        loading="lazy"
+        src="https://www.google.com/maps?q=${lat},${lon}&z=12&output=embed">
+      </iframe>
+    `;
+  } catch(err) {
+    document.getElementById("ip").textContent = "Failed to get IP.";
+    hackLine("ERROR: Unable to retrieve IP.");
+  }
+}
+
+loadIP();
+</script>
+
+</body>
+</html>
