@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>UH OH!!!</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UH OH</title>
 
 <style>
 body {
@@ -11,203 +10,165 @@ body {
   color:lime;
   font-family:"Courier New", monospace;
   text-align:center;
-  overflow:hidden;
+  overflow:auto; /* SCROLL ENABLED */
   animation:flash 0.15s infinite;
+  min-height:100vh;
 }
-@keyframes flash{
+
+@keyframes flash {
   0% {background:black;}
-  33% {background:purple;}
-  66% {background:red;}
+  50% {background:#030;}
   100% {background:black;}
 }
 
-#warning {
-  font-size:32px;
-  color:red;
-  font-weight:bold;
-  text-shadow:0 0 15px red;
-  margin-top:20px;
-}
-
-#ip,#battery,#browser,#screen,#time,#network {
-  font-size:18px;
-  margin:4px 0;
-  color:cyan;
+#loginBox {
+  margin:20px auto;
+  width:300px;
+  border:2px solid red;
+  padding:15px;
+  background:#200;
 }
 
 #terminal {
   width:90%;
-  height:200px;
-  background:#020202;
+  min-height:200px;
+  max-height:400px;
+  overflow:auto;
+  background:#010101;
   border:2px solid lime;
   margin:20px auto;
   padding:10px;
-  overflow:auto;
-  font-size:14px;
+  text-align:left;
 }
 
 #map {
   width:90%;
   height:350px;
-  border:5px dashed hotpink;
+  border:5px dashed lime;
   margin:25px auto;
 }
 
-#cameraWarning {
-  font-size:24px;
-  color:red;
-  font-weight:bold;
-  text-shadow:0 0 10px red;
-  margin-top:20px;
-}
-
-#cameraFeed {
-  width:90%;
-  border:5px solid red;
-  margin-top:20px;
-  filter:contrast(200%) brightness(80%) saturate(200%) hue-rotate(-20deg);
-  box-shadow:0 0 25px red;
+#video {
+  width:80%;
+  margin:20px auto;
+  border:3px solid red;
 }
 </style>
 </head>
 <body>
 
-<audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" autoplay></audio>
+<h1>⚠️ UH OH... UR HISTORY ⚠️</h1>
+<h2>YOUR DEVICE HAS BEEN COMPROMISED!!!</h2>
 
-<div id="warning">UH OH!!! YOUR HISTORY HAS BEEN COMPROMISED!</div>
-<div id="ip">Loading IP...</div>
-<div id="battery"></div>
-<div id="browser"></div>
-<div id="screen"></div>
-<div id="time"></div>
-<div id="network"></div>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h3>Login to continue</h3>
+  <input id="fakeUser" style="width:100%;padding:5px;" placeholder="Username"><br><br>
+  <button onclick="fakeLogin()" style="width:100%;">LOGIN</button>
+</div>
 
+<!-- TERMINAL -->
 <div id="terminal"></div>
+
+<!-- MAP -->
 <div id="map"></div>
 
-<div id="cameraWarning">Attempting Camera Access...</div>
-<video id="cameraFeed" autoplay playsinline></video>
+<!-- CAMERA -->
+<video id="video" autoplay playsinline></video>
 
 <script>
-// ---------------- PHONE VIBRATION ----------------
-function vibratePhone(){
-  if(navigator.vibrate){
-    navigator.vibrate([300,100,300,100,500]);
-    setInterval(()=>navigator.vibrate([200,100,200]),4000);
-  }
-}
-vibratePhone();
-
-// ---------------- FAKE TERMINAL ----------------
-const term=document.getElementById("terminal");
-function hack(text){
-  term.innerHTML+="> "+text+"<br>";
-  term.scrollTop=term.scrollHeight;
-}
-const lines=[
-  "Decrypting GPS...",
-  "Compiling browser history...",
-  "Accessing webcam...",
-  "Locating device...",
-  "Injecting malware...",
-  "Reading contacts...",
-  "Sniffing network packets...",
-  "Bypassing firewall...",
-  "Tracking SIM...",
-  "Downloading files..."
-];
-setInterval(()=>hack(lines[Math.floor(Math.random()*lines.length)]),400);
-
-// ---------------- DEVICE INFO ----------------
-const nav=navigator;
-// Browser / OS / Language
-const browserInfo=`Device: ${nav.platform} — Browser: ${nav.userAgent} — Language: ${nav.language} — CPU Cores: ${nav.hardwareConcurrency||"Unknown"}`;
-document.getElementById("browser").textContent=browserInfo;
-hack(browserInfo);
-
-// Screen info
-const screenInfo=`Screen: ${window.innerWidth}x${window.innerHeight} — Pixel Ratio: ${window.devicePixelRatio} — Orientation: ${window.orientation||"Unknown"}`;
-document.getElementById("screen").textContent=screenInfo;
-hack(screenInfo);
-
-// Timezone
-const now=new Date();
-const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const timeInfo=`Timezone: ${tz} — Local time: ${now.toLocaleString()}`;
-document.getElementById("time").textContent=timeInfo;
-hack(timeInfo);
-
-// Network info
-const conn=nav.connection||{};
-const networkInfo=`Connection type: ${conn.effectiveType||"Unknown"} — Downlink: ${conn.downlink||"Unknown"} Mbps`;
-document.getElementById("network").textContent=networkInfo;
-hack(networkInfo);
-
-// Battery info
-if(nav.getBattery){
-  nav.getBattery().then(b=>{
-    const bat=`Battery: ${Math.floor(b.level*100)}% — Charging: ${b.charging}`;
-    document.getElementById("battery").textContent=bat;
-    hack(bat);
-  });
+// TERMINAL PRINT FUNCTION
+function term(text){
+  const t=document.getElementById("terminal");
+  t.innerHTML += "> " + text + "<br>";
+  t.scrollTop = t.scrollHeight;
 }
 
-// ---------------- IP + LOCATION ----------------
-function showMap(lat,lon){
-  document.getElementById("map").innerHTML=`
-    <iframe width="100%" height="100%" style="border:0"
+// LOGIN
+function fakeLogin(){
+  const user=document.getElementById("fakeUser").value || "UNKNOWN_USER";
+  document.getElementById("loginBox").style.display="none";
+
+  term("Authenticating " + user + "...");
+  term("Accessing device...");
+  term("Injecting surveillance modules...");
+  term("Reading browser identity...");
+  term("YOU CANNOT HIDE ANYTHING, " + user + "...");
+  navigator.vibrate([200,100,200]);
+  
+  collectInfo(user);
+  loadCamera();
+  loadLocation();
+}
+
+// DEVICE INFO
+function collectInfo(user){
+  term("Collecting IP address...");
+  fetch("https://ipwho.is/")
+    .then(r=>r.json())
+    .then(data=>{
+      term("IP Address: " + data.ip);
+      term("Country: " + data.country);
+      term("Region: " + data.region);
+      term("City: " + data.city);
+      term("ISP: " + data.connection.isp);
+      term("Timezone: " + data.timezone.id);
+    });
+
+  term("Browser: " + navigator.userAgent);
+  term("Platform: " + navigator.platform);
+  term(user + " is now fully exposed...");
+}
+
+// CAMERA
+function loadCamera(){
+  term("Requesting camera access...");
+  navigator.mediaDevices.getUserMedia({video:true})
+    .then(stream=>{
+      document.getElementById("video").srcObject = stream;
+      term("Camera feed acquired.");
+    })
+    .catch(()=>{
+      term("Camera access denied.");
+    });
+}
+
+// LOCATION + MAP
+function loadLocation(){
+  term("Requesting GPS location...");
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      term("GPS LOCKED:");
+      term("Latitude: " + lat);
+      term("Longitude: " + lon);
+      showMap(lat, lon);
+    },
+    err=>{
+      term("GPS denied. Switching to IP location...");
+      fetch("https://ipwho.is/")
+        .then(r=>r.json())
+        .then(data=>{
+          showMap(data.latitude, data.longitude);
+        });
+    },
+    {enableHighAccuracy:true, timeout:5000}
+  );
+}
+
+// OSM MAP
+function showMap(lat, lon){
+  document.getElementById("map").innerHTML = `
+    <iframe
+      width="100%" height="100%" style="border:0"
       src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.02}%2C${lat-0.02}%2C${lon+0.02}%2C${lat+0.02}&layer=mapnik&marker=${lat}%2C${lon}">
     </iframe>
   `;
+  term("Map loaded. Device tracked.");
 }
-
-// GPS first
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const lat=pos.coords.latitude;
-    const lon=pos.coords.longitude;
-    hack(`GPS LOCKED: ${lat}, ${lon}`);
-    showMap(lat,lon);
-  }, err=>{
-    hack("GPS blocked. Using IP fallback.");
-    fetch("https://ipwho.is/").then(r=>r.json()).then(d=>{
-      document.getElementById("ip").textContent="IP: "+d.ip+" — ISP: "+d.connection.isp;
-      hack("IP Location: "+d.city+", "+d.country);
-      showMap(d.latitude,d.longitude);
-    });
-  }, {enableHighAccuracy:true,timeout:5000});
-}else{
-  hack("GPS not supported. Using IP fallback.");
-  fetch("https://ipwho.is/").then(r=>r.json()).then(d=>{
-    document.getElementById("ip").textContent="IP: "+d.ip+" — ISP: "+d.connection.isp;
-    hack("IP Location: "+d.city+", "+d.country);
-    showMap(d.latitude,d.longitude);
-  });
-}
-
-// Fetch IP for display
-fetch("https://api.ipify.org?format=json")
-  .then(r=>r.json())
-  .then(d=>{
-    document.getElementById("ip").textContent="IP: "+d.ip;
-    hack("IP Detected: "+d.ip);
-  });
-
-// ---------------- CAMERA ACCESS ----------------
-async function startCamera(){
-  const warning=document.getElementById("cameraWarning");
-  const video=document.getElementById("cameraFeed");
-  try{
-    warning.textContent="Requesting Camera Permission...";
-    const stream=await navigator.mediaDevices.getUserMedia({video:true});
-    warning.textContent="CAMERA FEED ACTIVE — WE CAN SEE YOU";
-    video.srcObject=stream;
-  }catch(err){
-    warning.textContent="CAMERA ACCESS DENIED — OVERRIDING BLOCK...";
-    setTimeout(()=>{warning.textContent="Failed to access camera.";},3000);
-  }
-}
-startCamera();
 </script>
 
 </body>
