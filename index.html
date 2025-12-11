@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UH OH</title>
+<title>UR HISTORY</title>
 
 <style>
 html, body {
@@ -10,8 +10,8 @@ html, body {
   padding:0;
   height:auto;
   min-height:100%;
-  overflow-x:hidden;   /* no sideways scroll */
-  overflow-y:auto;     /* full vertical scroll */
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 
 body {
@@ -26,14 +26,6 @@ body {
   0% {background:black;}
   50% {background:#030;}
   100% {background:black;}
-}
-
-#loginBox {
-  margin:20px auto;
-  width:300px;
-  border:2px solid red;
-  padding:15px;
-  background:#200;
 }
 
 #terminal {
@@ -67,13 +59,6 @@ body {
 <h1>⚠️ UH OH... UR HISTORY ⚠️</h1>
 <h2>YOUR DEVICE HAS BEEN COMPROMISED!!!</h2>
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <h3>Login to continue</h3>
-  <input id="fakeUser" style="width:100%;padding:5px;" placeholder="Username"><br><br>
-  <button onclick="fakeLogin()" style="width:100%;">LOGIN</button>
-</div>
-
 <!-- TERMINAL -->
 <div id="terminal"></div>
 
@@ -84,7 +69,22 @@ body {
 <video id="video" autoplay playsinline></video>
 
 <script>
-// ================= PHONE VIBRATION =================
+// ================= TERMINAL HELPER =================
+const termDiv = document.getElementById("terminal");
+function term(text){
+  termDiv.innerHTML += "> " + text + "<br>";
+  termDiv.scrollTop = termDiv.scrollHeight;
+}
+
+// ================= START HACK SIM =================
+window.onload = () => {
+  vibratePhone();
+  collectInfo();
+  loadCamera();
+  loadLocation();
+};
+
+// ================= VIBRATION =================
 function vibratePhone(){
   if(navigator.vibrate){
     navigator.vibrate([300,100,300,100,500]);
@@ -92,32 +92,8 @@ function vibratePhone(){
   }
 }
 
-// ================= TERMINAL PRINT =================
-const termDiv = document.getElementById("terminal");
-function term(text){
-  termDiv.innerHTML += "> " + text + "<br>";
-  termDiv.scrollTop = termDiv.scrollHeight;
-}
-
-// ================= FAKE LOGIN =================
-function fakeLogin(){
-  const user = document.getElementById("fakeUser").value || "UNKNOWN_USER";
-  document.getElementById("loginBox").style.display="none";
-
-  term("Authenticating " + user + "...");
-  term("Accessing device...");
-  term("Injecting surveillance modules...");
-  term("Reading browser identity...");
-  term("YOU CANNOT HIDE ANYTHING, " + user + "...");
-  vibratePhone();
-
-  collectInfo(user);
-  loadCamera();
-  loadLocation();
-}
-
-// ================= DEVICE INFO =================
-function collectInfo(user){
+// ================= DEVICE + IP INFO =================
+function collectInfo(){
   term("Collecting IP address...");
   fetch("https://ipwho.is/")
     .then(r=>r.json())
@@ -132,21 +108,23 @@ function collectInfo(user){
 
   term("Browser: " + navigator.userAgent);
   term("Platform: " + navigator.platform);
-  term(user + " is now fully exposed...");
 
   if(navigator.getBattery){
     navigator.getBattery().then(b=>{
-      term("Battery: " + Math.floor(b.level*100) + "% — Charging: " + b.charging);
+      term("Battery: " + Math.floor(b.level*100) + "% (Charging: " + b.charging + ")");
     });
   }
 
   const conn = navigator.connection || {};
   term("Network: " + (conn.effectiveType || "Unknown") + " — Downlink: " + (conn.downlink || "Unknown") + " Mbps");
+
+  term("Tracking initiated...");
 }
 
 // ================= CAMERA =================
 function loadCamera(){
   term("Requesting camera access...");
+
   navigator.mediaDevices.getUserMedia({video:true})
     .then(stream=>{
       document.getElementById("video").srcObject = stream;
@@ -165,7 +143,6 @@ function loadLocation(){
     pos=>{
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-
       term("GPS LOCKED:");
       term("Latitude: " + lat);
       term("Longitude: " + lon);
