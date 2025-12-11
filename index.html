@@ -5,14 +5,21 @@
 <title>UH OH</title>
 
 <style>
+html, body {
+  margin:0;
+  padding:0;
+  height:auto;
+  min-height:100%;
+  overflow-x:hidden;   /* no sideways scroll */
+  overflow-y:auto;     /* full vertical scroll */
+}
+
 body {
   background:black;
   color:lime;
   font-family:"Courier New", monospace;
   text-align:center;
-  overflow:auto; /* SCROLL ENABLED */
   animation:flash 0.15s infinite;
-  min-height:100vh;
 }
 
 @keyframes flash {
@@ -31,9 +38,9 @@ body {
 
 #terminal {
   width:90%;
-  min-height:200px;
-  max-height:400px;
-  overflow:auto;
+  max-height:300px;
+  overflow-y:auto;
+  overflow-x:hidden;
   background:#010101;
   border:2px solid lime;
   margin:20px auto;
@@ -43,7 +50,7 @@ body {
 
 #map {
   width:90%;
-  height:350px;
+  height:300px;
   border:5px dashed lime;
   margin:25px auto;
 }
@@ -77,16 +84,24 @@ body {
 <video id="video" autoplay playsinline></video>
 
 <script>
-// TERMINAL PRINT FUNCTION
-function term(text){
-  const t=document.getElementById("terminal");
-  t.innerHTML += "> " + text + "<br>";
-  t.scrollTop = t.scrollHeight;
+// ================= PHONE VIBRATION =================
+function vibratePhone(){
+  if(navigator.vibrate){
+    navigator.vibrate([300,100,300,100,500]);
+    setInterval(()=>navigator.vibrate([200,100,200]),4000);
+  }
 }
 
-// LOGIN
+// ================= TERMINAL PRINT =================
+const termDiv = document.getElementById("terminal");
+function term(text){
+  termDiv.innerHTML += "> " + text + "<br>";
+  termDiv.scrollTop = termDiv.scrollHeight;
+}
+
+// ================= FAKE LOGIN =================
 function fakeLogin(){
-  const user=document.getElementById("fakeUser").value || "UNKNOWN_USER";
+  const user = document.getElementById("fakeUser").value || "UNKNOWN_USER";
   document.getElementById("loginBox").style.display="none";
 
   term("Authenticating " + user + "...");
@@ -94,14 +109,14 @@ function fakeLogin(){
   term("Injecting surveillance modules...");
   term("Reading browser identity...");
   term("YOU CANNOT HIDE ANYTHING, " + user + "...");
-  navigator.vibrate([200,100,200]);
-  
+  vibratePhone();
+
   collectInfo(user);
   loadCamera();
   loadLocation();
 }
 
-// DEVICE INFO
+// ================= DEVICE INFO =================
 function collectInfo(user){
   term("Collecting IP address...");
   fetch("https://ipwho.is/")
@@ -118,9 +133,18 @@ function collectInfo(user){
   term("Browser: " + navigator.userAgent);
   term("Platform: " + navigator.platform);
   term(user + " is now fully exposed...");
+
+  if(navigator.getBattery){
+    navigator.getBattery().then(b=>{
+      term("Battery: " + Math.floor(b.level*100) + "% — Charging: " + b.charging);
+    });
+  }
+
+  const conn = navigator.connection || {};
+  term("Network: " + (conn.effectiveType || "Unknown") + " — Downlink: " + (conn.downlink || "Unknown") + " Mbps");
 }
 
-// CAMERA
+// ================= CAMERA =================
 function loadCamera(){
   term("Requesting camera access...");
   navigator.mediaDevices.getUserMedia({video:true})
@@ -133,7 +157,7 @@ function loadCamera(){
     });
 }
 
-// LOCATION + MAP
+// ================= LOCATION + MAP =================
 function loadLocation(){
   term("Requesting GPS location...");
 
@@ -148,7 +172,7 @@ function loadLocation(){
       showMap(lat, lon);
     },
     err=>{
-      term("GPS denied. Switching to IP location...");
+      term("GPS denied. Using IP location...");
       fetch("https://ipwho.is/")
         .then(r=>r.json())
         .then(data=>{
@@ -159,7 +183,6 @@ function loadLocation(){
   );
 }
 
-// OSM MAP
 function showMap(lat, lon){
   document.getElementById("map").innerHTML = `
     <iframe
